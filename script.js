@@ -2,37 +2,71 @@ let allQuestions = [];
 let currentIndex = 0;
 let userAnswers = []; // To store the user's selected answer for each question
 
-document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+// Combined upload form event listener
+document.getElementById('uploadForm').addEventListener('submit', function(e) {
   e.preventDefault();
-  const formData = new FormData(this);
-  
+
   // Get the number of questions the user wants to attempt
   const qCountInput = document.getElementById('questionCount').value;
   const desiredQuestionCount = parseInt(qCountInput) || 0;
+
+  // Get the PDF file from the input
+  const fileInput = document.querySelector('input[name="mcqPdf"]');
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
   
-  const response = await fetch('/upload', {
-    method: 'POST',
-    body: formData
-  });
-  const data = await response.json();
-  allQuestions = data.questions;
+  reader.onload = async function() {
+    // reader.result is a data URL like "data:application/pdf;base64,..."
+    // Extract the base64 string by splitting at the comma
+    const base64Data = reader.result.split(',')[1];
+    
+    try {
+      // Send the base64 string to the Netlify Function
+      const response = await fetch('/.netlify/functions/upload', {
+        method: 'POST',
+        body: base64Data,
+        headers: {
+          'Content-Type': 'application/pdf'
+        }
+      });
+      
+      const result = await response.json();
+      
+      // Check for questions in the result; if not, try parsing text using a custom function.
+      if (result.questions) {
+        allQuestions = result.questions;
+      } else if (result.text) {
+        // If you have a function parseMCQs() to convert text to questions, use it here.
+        allQuestions = parseMCQs(result.text);
+      } else {
+        console.error("No questions found in response");
+        return;
+      }
+      
+      // Shuffle the questions
+      allQuestions = shuffleArray(allQuestions);
+      
+      // Limit the questions based on the user's input (if provided)
+      if (desiredQuestionCount > 0) {
+        allQuestions = allQuestions.slice(0, Math.min(desiredQuestionCount, allQuestions.length));
+      }
+      
+      // Initialize userAnswers for the selected questions
+      userAnswers = new Array(allQuestions.length).fill(null);
+      
+      // Hide the upload form and show the quiz section
+      document.getElementById('uploadForm').style.display = 'none';
+      document.getElementById('quizSection').style.display = 'block';
+      currentIndex = 0;
+      displayQuestion();
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+  };
   
-  // Shuffle the questions
-  allQuestions = shuffleArray(allQuestions);
-  
-  // Limit the questions to the number the user wants (if fewer available, use them all)
-  if (desiredQuestionCount > 0) {
-    allQuestions = allQuestions.slice(0, Math.min(desiredQuestionCount, allQuestions.length));
-  }
-  
-  // Initialize userAnswers for only the selected questions
-  userAnswers = new Array(allQuestions.length).fill(null);
-  
-  // Hide upload form and show quiz section
-  document.getElementById('uploadForm').style.display = 'none';
-  document.getElementById('quizSection').style.display = 'block';
-  currentIndex = 0;
-  displayQuestion();
+  reader.readAsDataURL(file);
 });
 
 // Fisher-Yates shuffle algorithm
@@ -47,8 +81,8 @@ function shuffleArray(array) {
 function displayQuestion() {
   const container = document.getElementById('questionContainer');
   container.innerHTML = '';
-  
-  // Display the current question
+
+  // Get the current question
   const q = allQuestions[currentIndex];
   const questionDiv = document.createElement('div');
   questionDiv.className = 'question';
@@ -60,17 +94,19 @@ function displayQuestion() {
     optionDiv.className = 'option';
     optionDiv.innerText = `${option.letter}) ${option.text}`;
     
-    // Restore user's previous selection if available
+    // If the user has already answered this question, disable clicking and show the saved selection
     if (userAnswers[currentIndex] !== null) {
       optionDiv.style.pointerEvents = 'none';
       const saved = userAnswers[currentIndex];
       if (option.letter === saved) {
         optionDiv.classList.add(option.isCorrect ? 'correct' : 'wrong');
       }
+      // Also highlight the correct answer if the saved answer is incorrect
       if (option.letter === getCorrectOption(q) && saved !== getCorrectOption(q)) {
         optionDiv.classList.add('correct');
       }
     } else {
+      // Allow user to select an answer
       optionDiv.addEventListener('click', () => {
         userAnswers[currentIndex] = option.letter;
         const siblings = optionDiv.parentElement.querySelectorAll('.option');
@@ -107,6 +143,7 @@ function getCorrectOption(q) {
   return '';
 }
 
+// Navigation buttons
 document.getElementById('prevButton').addEventListener('click', () => {
   if (currentIndex > 0) {
     currentIndex--;
@@ -121,7 +158,7 @@ document.getElementById('nextButton').addEventListener('click', () => {
   }
 });
 
-// Show submit button on last question if answered
+// Show submit button if on the last question and it's answered
 function checkSubmitVisibility() {
   const submitBtn = document.getElementById('submitButton');
   if (currentIndex === allQuestions.length - 1 && userAnswers[currentIndex] !== null) {
@@ -162,7 +199,7 @@ function showResult(score, total) {
   document.getElementById('scoreText').textContent = `${score}/${total}`;
 }
 
-// Reset button to allow a new PDF upload (resetting the app)
+// Reset button functionality
 document.getElementById('resetButton').addEventListener('click', () => {
   allQuestions = [];
   currentIndex = 0;
@@ -180,17 +217,14 @@ const mainContainer = document.getElementById('mainContainer');
 
 notesButton.addEventListener('click', () => {
   notesModal.style.display = 'block';
-  // Add blur class to main container
   mainContainer.classList.add('blurred');
 });
 
 closeModal.addEventListener('click', () => {
   notesModal.style.display = 'none';
-  // Remove blur class
   mainContainer.classList.remove('blurred');
 });
 
-// Close modal when clicking outside the modal content
 window.addEventListener('click', (event) => {
   if (event.target == notesModal) {
     notesModal.style.display = 'none';
@@ -198,49 +232,30 @@ window.addEventListener('click', (event) => {
   }
 });
 
-document.getElementById('uploadForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  
-  const fileInput = document.querySelector('input[name="mcqPdf"]');
-  const file = fileInput.files[0];
-  
-  if (!file) return;
-  
-  const reader = new FileReader();
-  
-  reader.onload = async function() {
-    // reader.result is a base64 string like "data:application/pdf;base64,JVBERi0xLjQKJ..."
-    // Remove the data URL prefix.
-    const base64Data = reader.result.split(',')[1];
-    
-    // (Optional) If you want to limit the number of questions, get that value:
-    const desiredCount = document.getElementById('questionCount').value;
-    
-    // Build your request body.
-    // You can include additional fields if needed.
-    const requestBody = {
-      fileData: base64Data,
-      questionCount: desiredCount
-    };
-    
-    // Send the file to the Netlify function.
-    try {
-      const response = await fetch('/.netlify/functions/upload', {
-        method: 'POST',
-        body: base64Data, // For simplicity, we're just sending the raw base64 string.
-        headers: {
-          'Content-Type': 'application/pdf'
-        }
-      });
-      
-      const result = await response.json();
-      console.log('PDF Text:', result.text);
-      // Continue with your parsing and quiz display logic...
-    } catch (error) {
-      console.error('Error uploading file:', error);
+// Optional: If you have a custom parser function to convert extracted text into questions,
+// define it here:
+function parseMCQs(text) {
+  // Example simple parser:
+  const lines = text.split('\n').map(line => line.trim()).filter(line => line !== '');
+  const questions = [];
+  let currentQuestion = null;
+  lines.forEach(line => {
+    if (line.startsWith('Q:')) {
+      if (currentQuestion) questions.push(currentQuestion);
+      currentQuestion = { question: line.substring(2).trim(), options: [] };
+    } else if (currentQuestion) {
+      // Assume options are formatted with a leading letter and parenthesis,
+      // and correct option marked with an asterisk.
+      let isCorrect = false;
+      if (line.startsWith('*')) {
+        isCorrect = true;
+        line = line.substring(1).trim();
+      }
+      const letter = line.charAt(0);
+      const textOption = line.substring(2).trim();
+      currentQuestion.options.push({ letter, text: textOption, isCorrect });
     }
-  };
-  
-  reader.readAsDataURL(file);
-});
-
+  });
+  if (currentQuestion) questions.push(currentQuestion);
+  return questions;
+}
