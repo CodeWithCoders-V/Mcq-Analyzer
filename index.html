@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MCQ Analyzer</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+  <!-- Optional Google Font -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+</head>
+<body>
+  <div class="container" id="mainContainer">
+    <h1>MCQ Analyzer</h1>
+
+    <!-- Important Notes button (positioned in the top-right corner) -->
+    <button id="notesButton" class="notes-button">
+     <p> ❗</p>
+    </button>
+    
+
+    <!-- Upload Form -->
+    <form id="uploadForm" enctype="multipart/form-data">
+      <input type="file" name="mcqPdf" accept="application/pdf" required>
+      <br>
+      <label for="questionCount">Number of Questions:</label>
+      <input type="number" id="questionCount" name="questionCount" min="1" placeholder="Enter number of questions" required>
+      <br>
+      <button type="submit">Upload PDF</button>
+    </form>
+    
+    <!-- Quiz Section -->
+    <div id="quizSection" style="display:none;">
+      <div id="questionContainer"></div>
+      <div class="navigation">
+        <button id="prevButton">Previous</button>
+        <button id="nextButton">Next</button>
+      </div>
+      <div class="submit-container">
+        <button id="submitButton" style="display:none;">Submit</button>
+      </div>
+    </div>
+    
+    <!-- Result Section -->
+    <div id="resultSection" style="display:none;">
+      <h2>Your Score</h2>
+      <svg class="progress-ring" width="150" height="150" viewBox="0 0 150 150">
+        <circle class="progress-ring__background" stroke="#eee" stroke-width="10" fill="transparent" r="70" cx="75" cy="75"/>
+        <circle class="progress-ring__progress" stroke="#4caf50" stroke-width="10" fill="transparent" r="70" cx="75" cy="75"
+          stroke-dasharray="440"
+          stroke-dashoffset="440"/>
+        <text x="50%" y="50%" text-anchor="middle" alignment-baseline="middle" font-size="24px" fill="#333" id="scoreText">
+          0/0
+        </text>
+      </svg>
+      <div class="reset-container">
+        <button id="resetButton">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for Important Notes -->
+  <div id="notesModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Important Notes</h2>
+      <p>Please upload a PDF file that follows this pattern:</p>
+      <ul>
+        <li>Each question starts with <strong>"Q:"</strong></li>
+        <li>Each option appears on the following lines</li>
+        <li>The correct answer is marked with an asterisk <strong>(*)</strong> before the option letter</li>
+      </ul>
+      <p>For example:</p>
+
+      <pre>
+  Q: What is the capital of France?
+  
+   *A) Paris
+    B) London
+    C) Berlin
+    D) Rome
+      </pre>
+    </div>
+  </div>
+  
+  <script src="script.js"></script>
+</body>
+</html>

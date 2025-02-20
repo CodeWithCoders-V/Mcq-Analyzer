@@ -1,0 +1,364 @@
+/* Overall page styling */
+body {
+  font-family: 'Roboto', sans-serif;
+  background: linear-gradient(to right, #6dd5fa, #2980b9);
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  position: relative;
+  background: #fff;
+  width: 90%;
+  max-width: 600px;
+  padding: 20px 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* Button for Important Notes placed in the body */
+.notes-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #f39c12;
+  border: none;
+  color: #fff;
+  padding: 10px;
+  font-size: 24px; /* This sets the size of the Font Awesome icon */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notes-button p {
+  font-size: 20px;  /* Inherits the button's font size (24px by default) */
+  line-height: 10;
+}
+
+.notes-button:hover {
+  background: #e67e22;
+}
+
+/* Upload form elements */
+form {
+  margin-bottom: 20px;
+}
+
+input[type="file"],
+input[type="number"] {
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+input[type="file"]:focus,
+input[type="number"]:focus {
+  border-color: #2980b9;
+  outline: none;
+}
+
+label[for="questionCount"] {
+  display: block;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+  font-size: 16px;
+}
+
+/* File input button styling for modern browsers */
+input[type="file"]::file-selector-button {
+  background: #2980b9;
+  border: none;
+  color: #fff;
+  padding: 8px 16px;
+  margin-right: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s ease;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background: #1e6391;
+}
+
+/* For older WebKit browsers */
+input[type="file"]::-webkit-file-upload-button {
+  background: #2980b9;
+  border: none;
+  color: #fff;
+  padding: 8px 16px;
+  margin-right: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s ease;
+}
+
+input[type="file"]::-webkit-file-upload-button:hover {
+  background: #1e6391;
+}
+
+/* Button styling for other buttons */
+button {
+  padding: 10px 20px;
+  background: #2980b9;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s ease;
+  margin-top: 10px;
+}
+
+button:hover:not(:disabled) {
+  background: #1e6391;
+}
+
+button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Quiz Section styling */
+.question {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.question p {
+  font-size: 18px;
+  color: #333;
+}
+
+.option {
+  margin: 10px 0;
+  padding: 10px;
+  border: 2px solid #2980b9;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.option:hover {
+  background: #f1f1f1;
+}
+
+.option.correct {
+  background: #c8e6c9;
+  border-color: #2e7d32;
+}
+
+.option.wrong {
+  background: #ffcdd2;
+  border-color: #c62828;
+}
+
+.navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.submit-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+/* Result Section styling */
+#resultSection {
+  margin-top: 20px;
+}
+
+.progress-ring {
+  transform: rotate(-90deg);
+}
+
+.progress-ring__background {
+  stroke: #eee;
+}
+
+.progress-ring__progress {
+  stroke: #4caf50;
+  transition: stroke-dashoffset 1s ease;
+}
+
+#scoreText {
+  font-size: 24px;
+  fill: #333;
+}
+
+/* Reset button styling */
+.reset-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+/* Modal styles */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  z-index: 1200;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.7);
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 5% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 8px;
+  position: relative;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  color: #333;
+}
+
+.modal-content p,
+.modal-content ul,
+.modal-content pre {
+  font-size: 16px;
+  color: #555;
+  text-align: left;
+}
+
+.modal-content ul {
+  padding-left: 20px;
+}
+
+.close {
+  color: #aaa;
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+}
+
+/* Blur effect for main content when modal is active */
+.blurred {
+  filter: blur(5px);
+}
+
+/* Responsive styling for devices with max-width: 600px */
+@media screen and (max-width: 600px) {
+  .notes-button {
+    position: fixed; /* Still fixed relative to viewport */
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* Responsive styling for devices with max-width: 600px */
+@media screen and (max-width: 600px) {
+  .container {
+    margin-left: 5px;
+    margin-right: 5px;
+    padding: 10px 10px;
+    max-width: 80%;
+  }
+  
+  h1 {
+    font-size: 24px;
+    margin-bottom: 35px;
+  }
+  
+  .question p {
+    font-size: 16px;
+  }
+  
+  .option {
+    font-size: 14px;
+    padding: 8px;
+    margin: 8px 0;
+  }
+  
+  button {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+  
+  /* Adjust progress ring for smaller devices */
+  .progress-ring {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .progress-ring__background,
+  .progress-ring__progress {
+    stroke-width: 8;
+  }
+  
+  #scoreText {
+    font-size: 45px;
+  }
+  
+  /* Responsive styling for file input on mobile */
+  input[type="file"] {
+    font-size: 14px;
+    padding: 4px 8px;
+    margin-bottom: 10px;
+  }
+  
+  input[type="file"]::file-selector-button,
+  input[type="file"]::-webkit-file-upload-button {
+    font-size: 14px;
+    padding: 6px 12px;
+    margin-right: 5px;
+  }
+  
+  /* Adjust modal content font sizes */
+  .modal-content {
+    margin: 25% auto;
+    padding: 7px;
+  }
+  
+  .modal-content h2 {
+    font-size: 20px;
+  }
+  
+  .modal-content p,
+  .modal-content ul,
+  .modal-content pre {
+    font-size: 14px;
+  }
+  
+  .close {
+    font-size: 24px;
+  }
+}
